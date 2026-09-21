@@ -83,6 +83,7 @@
      <addaction name="action_Open_Citra_Folder"/>
      <addaction name="action_Open_NAND_Folder"/>
      <addaction name="action_Open_SDMC_Folder"/>
+     <addaction name="action_Open_Plugins_Folder"/>
     </widget>
     <addaction name="action_Load_File"/>
     <addaction name="action_Install_CIA"/>
@@ -232,6 +233,8 @@
     <addaction name="separator"/>
     <addaction name="action_Compress_ROM_File"/>
     <addaction name="action_Decompress_ROM_File"/>
+    <addaction name="separator"/>
+    <addaction name="action_Plugins"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -774,6 +777,16 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="action_Plugins">
+   <property name="text">
+    <string>&amp;Plugins...</string>
+   </property>
+  </action>
+  <action name="action_Open_Plugins_Folder">
+   <property name="text">
+    <string>Plugins Folder</string>
    </property>
   </action>
  </widget>

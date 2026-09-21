@@ -39,6 +39,8 @@
 #endif
 #include "citra_meta/common_strings.h"
 #include "citra_qt/aboutdialog.h"
+#include "citra_qt/plugins/plugin_dialog.h"
+#include "core/plugins/plugin_manager.h"
 #include "citra_qt/applets/mii_selector.h"
 #include "citra_qt/applets/swkbd.h"
 #include "citra_qt/bootmanager.h"
@@ -540,6 +542,8 @@ GMainWindow::GMainWindow(Core::System& system_)
     physical_devices = GetVulkanPhysicalDevices();
 #endif
 
+    Plugins::PluginManager::GetInstance().Initialize();
+
     if (!game_path.isEmpty()) {
         BootGame(game_path);
     }
@@ -550,6 +554,8 @@ GMainWindow::~GMainWindow() {
     if (!render_window->parent()) {
         delete render_window;
     }
+
+    Plugins::PluginManager::GetInstance().Shutdown();
 
     Pica::g_debug_context.reset();
     Network::Shutdown();
@@ -1140,6 +1146,7 @@ void GMainWindow::ConnectMenuEvents() {
     connect_menu(ui->action_Open_Citra_Folder, &GMainWindow::OnOpenCitraFolder);
     connect_menu(ui->action_Open_NAND_Folder, &GMainWindow::OnOpenNANDFolder);
     connect_menu(ui->action_Open_SDMC_Folder, &GMainWindow::OnOpenSDMCFolder);
+    connect_menu(ui->action_Open_Plugins_Folder, &GMainWindow::OnOpenPluginsFolder);
 
     // Emulation
     connect_menu(ui->action_Pause, &GMainWindow::OnPauseContinueGame);
@@ -1203,6 +1210,7 @@ void GMainWindow::ConnectMenuEvents() {
     });
     connect_menu(ui->action_Capture_Screenshot, &GMainWindow::OnCaptureScreenshot);
     connect_menu(ui->action_Dump_Video, &GMainWindow::OnDumpVideo);
+    connect_menu(ui->action_Plugins, &GMainWindow::OnMenuPlugins);
 
     // Tools debug
     connect_menu(ui->action_Debug_Pause, [this] {
@@ -1578,6 +1586,7 @@ void GMainWindow::BootGame(const QString& filename) {
     emu_thread = std::make_unique<EmuThread>(system, *render_window);
     emit EmulationStarting(emu_thread.get());
     emu_thread->start();
+    Plugins::PluginManager::GetInstance().SetEmulationState(EMU_STATE_RUNNING);
 
     connect(render_window, &GRenderWindow::Closed, this, &GMainWindow::OnStopGame);
     connect(render_window, &GRenderWindow::MouseActivity, this, &GMainWindow::OnMouseActivity);
@@ -2632,6 +2641,7 @@ void GMainWindow::OnResumeGame(bool first_start) {
 
     UpdateSaveStates();
     UpdateStatusButtons();
+    Plugins::PluginManager::GetInstance().SetEmulationState(EMU_STATE_RUNNING);
 }
 
 void GMainWindow::OnRestartGame() {
@@ -2650,6 +2660,7 @@ void GMainWindow::OnPauseGame() {
 
     UpdateMenuState();
     AllowOSSleep();
+    Plugins::PluginManager::GetInstance().SetEmulationState(EMU_STATE_PAUSED);
 
 #ifdef __unix__
     Common::Linux::StopGamemode();
@@ -2677,6 +2688,7 @@ void GMainWindow::OnStopGame() {
     graphics_api_button->setEnabled(true);
     Settings::RestoreGlobalState(false);
     UpdateStatusButtons();
+    Plugins::PluginManager::GetInstance().SetEmulationState(EMU_STATE_STOPPED);
 }
 
 void GMainWindow::OnLoadComplete() {
@@ -2952,6 +2964,7 @@ void GMainWindow::OnSaveState() {
     system.SendSignal(Core::System::Signal::Save, action->data().toUInt());
     system.frame_limiter.AdvanceFrame();
     newest_slot = action->data().toUInt();
+    Plugins::PluginManager::GetInstance().SetCurrentSlot(action->data().toInt());
 }
 
 void GMainWindow::OnLoadState() {
@@ -4018,6 +4031,20 @@ void GMainWindow::OnCoreError(Core::System::ResultStatus result, std::string det
 void GMainWindow::OnMenuAboutCitra() {
     AboutDialog about{this};
     about.exec();
+}
+
+void GMainWindow::OnMenuPlugins() {
+    PluginDialog dialog{this};
+    dialog.exec();
+}
+
+void GMainWindow::OnOpenPluginsFolder() {
+    std::string dir_str = Plugins::PluginManager::GetInstance().GetPluginsDirectory();
+    QDir dir(QString::fromStdString(dir_str));
+    if (!dir.exists()) {
+        dir.mkpath(QStringLiteral("."));
+    }
+    QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath()));
 }
 
 bool GMainWindow::ConfirmClose() {

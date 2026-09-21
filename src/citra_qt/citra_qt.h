@@ -31,6 +31,7 @@
 #include <filesystem>
 
 class AboutDialog;
+class PluginDialog;
 class QtConfig;
 class ClickableLabel;
 class EmuThread;
@@ -306,6 +307,8 @@ private slots:
     bool ShowExceptionDialog(Core::System::ResultStatus result, const std::string& details);
     /// Called whenever a user selects Help->About Azahar
     void OnMenuAboutCitra();
+    void OnMenuPlugins();
+    void OnOpenPluginsFolder();
 
     void OnLanguageChanged(const QString& locale);
     void OnMouseActivity();

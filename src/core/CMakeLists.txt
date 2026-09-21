@@ -36,6 +36,8 @@ add_library(citra_core STATIC EXCLUDE_FROM_ALL
     cheats/gateway_cheat.h
     core.cpp
     core.h
+    plugins/plugin_manager.cpp
+    plugins/plugin_manager.h
     core_timing.cpp
     core_timing.h
     dumping/backend.cpp

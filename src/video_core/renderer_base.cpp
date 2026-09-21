@@ -5,6 +5,7 @@
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/frontend/emu_window.h"
+#include "core/plugins/plugin_manager.h"
 #include "core/tracer/recorder.h"
 #include "video_core/debug_utils/debug_utils.h"
 #include "video_core/renderer_base.h"
@@ -49,6 +50,8 @@ void RendererBase::EndFrame() {
 
     system.frame_limiter.DoFrameLimiting(system.CoreTiming().GetGlobalTimeUs());
     system.perf_stats->BeginSystemFrame();
+
+    Plugins::PluginManager::GetInstance().OnFrameRendered();
 }
 
 bool RendererBase::IsScreenshotPending() const {

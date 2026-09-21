@@ -580,6 +580,7 @@ if (USE_SYSTEM_SOUNDTOUCH)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(examples/auto_save_plugin)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT citra_meta)
 

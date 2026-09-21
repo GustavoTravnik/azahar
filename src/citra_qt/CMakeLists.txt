@@ -11,6 +11,9 @@ add_library(citra_qt STATIC EXCLUDE_FROM_ALL
     aboutdialog.cpp
     aboutdialog.h
     aboutdialog.ui
+    plugins/plugin_dialog.cpp
+    plugins/plugin_dialog.h
+    plugins/plugin_dialog.ui
     applets/mii_selector.cpp
     applets/mii_selector.h
     applets/swkbd.cpp
